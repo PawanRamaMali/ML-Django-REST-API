@@ -42,3 +42,6 @@ Let’s check if everything is working by running the server
 
 Building the API:
 In api folder, navigate to the views.py file and paste the following code.
+
+## Testing the API
+Using Postman
