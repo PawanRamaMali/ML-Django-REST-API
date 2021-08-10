@@ -27,3 +27,13 @@ In your command line, create a Django project…
 (my_api)C:\Users\Documents\mldeployment>django-admin startproject model_deploy
 After that, navigate to the folder’s directory and create a Django app
 (my_api)C:\Users\Documents\mldeployment\model_deploy>django-admin startapp api
+
+In the model_deploy folder navigate to the settings.py file and add ‘rest_framework’ and ‘api’ which is the app we created under INSTALLED_APPS.
+
+Then make migrations
+(my_api)C:\Users\Documents\mldeployment\model_deploy>python manage.py makemigrations
+Then migrate
+(my_api)C:\Users\Documents\mldeployment\model_deploy>python manage.py migrate
+Let’s check if everything is working by running the server
+(my_api)C:\Users\Documents\mldeployment\model_deploy>python manage.py runserver
+
