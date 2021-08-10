@@ -37,3 +37,8 @@ Then migrate
 Let’s check if everything is working by running the server
 (my_api)C:\Users\Documents\mldeployment\model_deploy>python manage.py runserver
 
+
+## Step 3
+
+Building the API:
+In api folder, navigate to the views.py file and paste the following code.
