@@ -9,6 +9,7 @@
 * Return the prediction and confidence score as a JSON (JavaScript Object Notation)
 
 ## Step 1
+
 Create a virtual environment and install required libraries:
 C:\Users\Documents\mldeployment>python -m venv my_api
 I named my virtual environment ‘my_api’, you can use any name you like.
@@ -19,3 +20,10 @@ C:\Users\Documents\mldeployment\my_api\Scripts>activate
 You should get a result like this:
 (my_api) C:\Users\Documents\mldeployment\my_api\Scripts>
 
+## Step 2
+
+Set up Django and Djangorest:
+In your command line, create a Django project…
+(my_api)C:\Users\Documents\mldeployment>django-admin startproject model_deploy
+After that, navigate to the folder’s directory and create a Django app
+(my_api)C:\Users\Documents\mldeployment\model_deploy>django-admin startapp api
