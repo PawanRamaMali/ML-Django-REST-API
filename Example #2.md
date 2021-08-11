@@ -32,11 +32,12 @@ source Env64/bin/activate  # On Windows use `Env64\Scripts\activate`
 
 * Create New Django Project, once Django has installed properly, navigate to a folder of your choice in the command line. In our example we navigate to a folder called `DjangoRestAPIDemo`.
 
-`(Env64) Z:\MachineLearning> cd Z:\MachineLearning\Projects\DjangoRestAPIDemo` 
-
 * We are going to create a new Django project in the above folder with the command as shown below. In our example, the new Django project is called `APIProject`.
 
-`(Env64) Z:\MachineLearning\Projects\DjangoRestAPIDemo> django-admin startproject APIProject`
+```
+(Env64) Z:\MachineLearning> cd Z:\MachineLearning\Projects\DjangoRestAPIDemo
+(Env64) Z:\MachineLearning\Projects\DjangoRestAPIDemo> django-admin startproject APIProject
+```
 
 * By default Django creates a project with name specified and also creates a main app for the project with the same name inside the folder.
 
