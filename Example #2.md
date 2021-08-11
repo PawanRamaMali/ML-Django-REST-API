@@ -287,4 +287,15 @@ from rest_framework.views import APIView
 ```
 The class based view would look like below. Note that this has been added in the same views.py file as before in the Prediction app. In the class we can change the class function, post, which handles POST requests.
 
-
+```
+# Class based view to add numbers
+class Add_Values(APIView):
+    def post(self, request, format=None):
+        sum = 0
+        # Add the numbers
+        data = request.data
+        for key in data:
+            sum += data[key]
+        response_dict = {"sum": sum}
+        return Response(response_dict, status=status.HTTP_201_CREATED)
+```
