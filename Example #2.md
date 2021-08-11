@@ -347,8 +347,7 @@ print(iris.target_names)
 
 So, the measured features we have are sepal length, sepal width, petal length, and petal width. Based on these measurements we need to predict which species the iris flower is - setosa, versicolor or virginica.   
 
-![image](https://user-images.githubusercontent.com/11299574/129089409-97513edc-67fe-420e-afbf-a51f4437e6d0.png)
-
+![image](https://user-images.githubusercontent.com/11299574/129094820-12d849e0-3d4c-4425-a6c4-6f07c0199daf.png)
 
 * To train the model we create the feature matrix and target response variable as below.
 
@@ -370,7 +369,7 @@ X_df.describe()
 
 We see that there are 150 observations and the sepal length is in the range 4.3-7.9 cm, the sepal width is in the range 2-4.4 cm, the petal width is in the range 1-6.9 cm and the petal width is in the range 0.1 - 2.5 cm.  
 
-![image](https://user-images.githubusercontent.com/11299574/129087616-78438e8d-49ff-4e49-8232-2d9d4caf276c.png)
+![image](https://user-images.githubusercontent.com/11299574/129089409-97513edc-67fe-420e-afbf-a51f4437e6d0.png)
 
 * We next split our data into training and testing splits as below.
 
@@ -540,6 +539,95 @@ With the above sepal and petal data the predicted species is virginica. If we ma
 * Our API appears to be predicting the species of the iris flower well. You can further customize the API to make predictions for a set of observations and return the predictions as JSON to cross validate the model with real data, provided you have more data. 
 * However, given the cross validated accuracy of our model, it appears that our API is performing well.
 
+## Adding Authentication to our REST API
 
+* The simplest kind of authentication called basic authentication which requires a user login and password.
+* Note that for basic authentication the recommended settings is that your app server allows encrypted connections through https.
+* You may set this up when you finally upload your API app to a remote server. 
 
+* Adding basic authentication is extremely simple. 
+* You may achieve this by adding a global default settings in the main project's setting.py file. 
+* To achieve this add the following lines in your settings.py file in the APIProject folder. 
+
+```
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ]
+}
+```
+
+Since the above is only a default setting, there is a better approach. As per the official [docs](https://www.django-rest-framework.org/api-guide/authentication/) , we need to import the permission class,
+
+```
+from rest_framework.permissions import IsAuthenticated
+```
+
+and then add the line below in our API View Class.
+
+```
+permission_classes = [IsAuthenticated]
+```
+Our final Prediction API Class would look like below
+
+```
+class IRIS_Model_Predict(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request, format=None):
+        data = request.data
+        keys = []
+        values = []
+        for key in data:
+            keys.append(key)
+            values.append(data[key])
+        X = pd.Series(values).to_numpy().reshape(1, -1)
+        loaded_classifier = PredictionConfig.classifier 
+        y_pred = loaded_classifier.predict(X)
+        y_pred = pd.Series(y_pred)
+        target_map = {0: 'setosa', 1: 'versicolor', 2: 'virginica'}
+        y_pred = y_pred.map(target_map).to_numpy()
+        response_dict = {"Prediced Iris Species": y_pred[0]}
+        return Response(response_dict, status=200)
+```
+* Save the views.py file and restart the Django server. 
+* If you then try to use the prediction API without user login information you would get the error below.
+
+```
+{
+    "detail": "Authentication credentials were not provided."
+}
+```
+* If you are testing using Postman, you would need to provide login details in the Authorization section with Basic Auth as below .
+
+![image](https://user-images.githubusercontent.com/11299574/129097476-54804f26-8f97-4481-9c48-37674d2e0ea3.png)
+
+* If you are testing with your browser. You need an additional step in Django. For browsable API, you need to add the following url pattern to the main project's urls.py file.
+
+```
+urlpatterns += [
+    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+]
+
+```
+This is so that you can press login urls from the top right of the browser, which land you to a login page.  
+You can either add the above line of code or modify the existing global urls.py file such that our urls.py looks like below.
+
+```
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path('api/', include('Prediction.urls')),
+]
+
+```
+
+* If you now go to 'http://127.0.0.1:8000/api/predict/' through your browser you would see a login button appear in the top right corner.
+
+* You may login with the superuser credentials you created earlier. Once you have logged in, you can test the API as before.
+
+* You can add more users for your API by going to Django's admin portal with the url '127.0.0.1:8000/admin'.
 
