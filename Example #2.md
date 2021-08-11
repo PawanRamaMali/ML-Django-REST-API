@@ -535,6 +535,8 @@ Restart your Django server with the command 'python manage.py runserver' in the 
 
 With the above sepal and petal data the predicted species is virginica. If we make the petal size smaller i.e. petal length = 2 cm and petal width = 1 cm, we would see that API now predicts a different species 'setosa'.
 
+![image](https://user-images.githubusercontent.com/11299574/129094592-ca1a3efc-3ed4-4287-9be6-d34b348faa28.png)
+
 * Our API appears to be predicting the species of the iris flower well. You can further customize the API to make predictions for a set of observations and return the predictions as JSON to cross validate the model with real data, provided you have more data. 
 * However, given the cross validated accuracy of our model, it appears that our API is performing well.
 
