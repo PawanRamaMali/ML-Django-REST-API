@@ -347,7 +347,8 @@ print(iris.target_names)
 
 So, the measured features we have are sepal length, sepal width, petal length, and petal width. Based on these measurements we need to predict which species the iris flower is - setosa, versicolor or virginica.   
 
-![image](https://user-images.githubusercontent.com/11299574/129087438-83fc6ffb-ac4b-4065-8e1e-e0f41146c1d8.png)
+![image](https://user-images.githubusercontent.com/11299574/129089409-97513edc-67fe-420e-afbf-a51f4437e6d0.png)
+
 
 * To train the model we create the feature matrix and target response variable as below.
 
@@ -404,8 +405,30 @@ scores.mean()
 
 ```
 
+## Serializing our Prediction Model
 
+* There are several methods of serializing python objects. 
+* The most recommended solution is pickling objects. 
+* As per Python's official documentation, “ Pickling” is the process whereby a Python object hierarchy is converted into a byte stream, and “unpickling” is the inverse operation, whereby a byte stream (from a binary file or bytes-like object) is converted back into an object hierarchy.
 
+> Serialization is a method of converting python in-memory objects to a storage format that allows recovery of the python object's original structure from the stored format.
 
+* We need to serialize our trained model so that it can be used from our Prediction API. 
+* For this demonstration, we won't use the pickle method. 
+* Instead we would use the joblib library. With the dump method of joblib, save our model to disk as below.
+
+```
+from joblib import dump, load
+dump(estimator_rf, 'IRISRandomForestClassifier.joblib') 
+```
+
+Now, we load this model back from disk into memory, with the load method. We next test accuracy with this loaded model as before. We find that the saved model has loaded back correctly as we are getting the same testing accuracy as before.
+
+```
+loaded_classifier = load('IRISRandomForestClassifier.joblib') 
+loaded_classifier.score(X_test,y_test)
+#Output
+#0.9666666666666667
+```
 
 
