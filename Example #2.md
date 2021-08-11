@@ -253,4 +253,25 @@ Save the views.py file. And restart the server with
 python manage.py runserver
 ```
 
+## Test API 
+
+* The API should be ready. You can test the API in your browser by going to http://127.0.0.1:8000/api/add/, but this is not a recommended method to test the API. 
+* The reason for this is that the moment you visit http://127.0.0.1:8000/api/add/ with your browser, you have basically already made an API request to the server but without any data. 
+* However, since the Django REST Framework allows testing the API with the browser so I would also cover that as well but after the recommended test method below.
+* To test our API we first need to use an application called Postman. 
+* After opening postman, register and login. 
+* Choose Create a request. Below 'Untitled Request', choose POST from the dropdown. 
+* Enter 'http://127.0.0.1:8000/api/add/' in the request url.
+* Select Body, raw and JSON from the dropdown
+* Enter the JSON input data and press send. If the api worked correctly you should receive a response in the form of JSON at the bottom of the screen.
+
+Alternative 
+
+* To test the above in the browser. 
+* Go to http://127.0.0.1:8000/api/add/ from your browser. 
+* You would see a form with an input called 'Content' and a button called POST below. 
+* In the content enter your JSON data and press the POST button.
+* You would receive the output as before in JSON format at the top. 
+
+You have created your very first REST API in Django.
 
