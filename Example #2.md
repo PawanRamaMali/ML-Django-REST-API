@@ -155,3 +155,14 @@ Quit the server with CTRL-BREAK.
 * I would show the basic example with both Function based and Class Based views.
 
 ## Create Urls
+
+* Django app is a web app it only takes user commands in the form of urls or requests. 
+* That is, to perform  a specific task in Django, the user sends a url, or in other words a request, to the server. 
+* Depending on the content of the request, the server then performs some specific calculations and sends responses back to the user. 
+* The responses could be http responses containing html code or it could return specific strings, json or other web format responses. 
+* Also depending on the task to be performed, broadly speaking the user either sends a GET request or a POST request to the server. 
+* The GET request is normally used when the user sends certain parameters to the server and expects to 'GET' something back from the server pertaining to the parameters sent. 
+* A POST request is normally used when a user is 'POST'ing some data to the server. 
+* Normally such data is sent in the form of data from a user FORM or in formats such as JSON.
+
+Therefore the first thing we need to do is to define what urls perform what functions. These urls need to be defined in the main Django Project app's urls.py folder. This is because requests made to the server are first processed by the main app (the project app). So, we open the urls.py file in the APIProject directory.
