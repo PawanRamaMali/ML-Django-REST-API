@@ -135,13 +135,13 @@ You can see that the sqlite database file has been created in the project folder
 If you followed the above steps correctly, you would see the following message in the command line.
 
 ```
-System check identified no issues (0 silenced).                                                                                                                                    
-Django version 2.2, using settings 'ModelAPI.settings'                                                      
-Starting development server at http://127.0.0.1:8000/                                                       
+System check identified no issues (0 silenced).
+Django version 2.2, using settings 'ModelAPI.settings'
+Starting development server at http://127.0.0.1:8000/
 Quit the server with CTRL-BREAK.
 ```
 
-* Open your web browser and go to the url 'http://127.0.0.1:8000/'. You should see the following in your browser: 
+* Open your web browser and go to the url `http://127.0.0.1:8000/`. You should see the following in your browser: 
 
 
 ## Views in Django
@@ -166,3 +166,91 @@ Quit the server with CTRL-BREAK.
 * Normally such data is sent in the form of data from a user FORM or in formats such as JSON.
 
 Therefore the first thing we need to do is to define what urls perform what functions. These urls need to be defined in the main Django Project app's urls.py folder. This is because requests made to the server are first processed by the main app (the project app). So, we open the urls.py file in the APIProject directory.
+
+Add the line as shown below:
+
+```
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('api/', include('Prediction.urls')),
+]
+
+```
+
+What this means is that when the user makes a request with a url starting with http://127.0.0.1:8000/api look for the remaining part of the url in the file of the same name - urls.py file located in the folder for our app Prediction. This would be more clear from the explanation afterwards. Note that the http://127.0.0.1:8000 would be replaced by the website address/domain name of your site once you have fully productionized your application. 
+
+We next open the urls.py file in the Prediction folder. If the file doesn't exist create a file with the name urls.py in the Prediction folder. Add the following lines of code:
+
+```
+from django.urls import path
+import Prediction.views as views
+
+urlpatterns = [
+    path('add/', views.api_add, name = 'api_add')
+]
+```
+
+This is essentially the extension of the urls from the main project. So basically, what we are trying to achieve is that when a user sends a request starting with url http://127.0.0.1:8000/api/add/, run the function 'api_add' in the views.py inside the Prediction app.  
+
+
+## Create API with API View Function 
+
+Since we have created the url required to make an API request, now lets create the API function. 
+
+* To define an API function in Django, we need to add a decorator '@api_view' before the function definition. 
+* The decorator converts a python function to an API function. We also need to tell what kind of requests can be made to the server with this function. In our case we need to be able to make a POST request. 
+* However, I have also added a GET to the api_view decorator just to demonstrate. 
+* Our function is called 'api_add'. 
+* The function with the decorator would look like below:
+
+```
+from rest_framework import status
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
+# Create your views here.
+@api_view(['GET', 'POST'])
+def api_add(request):
+    sum = 0
+    response_dict = {}
+    if request.method == 'GET':
+        # Do nothing
+        pass
+    elif request.method == 'POST':
+        # Add the numbers
+        data = request.data
+        for key in data:
+            sum += data[key]
+        response_dict = {"sum": sum}
+    return Response(response_dict, status=status.HTTP_201_CREATED)
+    
+```
+
+If you look at the function above, you would see what it is supposed to be doing.  If the request.method is GET, the function does nothing. 
+If the request method is POST,  we would pass JSON data along with the POST request to the function. 
+The function would take JSON inputs such as below.
+
+```
+{
+	"x": 1,
+	"y":2
+}
+```
+
+* Next, the function would receive this request data in a Python dictionary variable called data. 
+* Next, for every key in the dictionary, the function would iterate to calculate the sum. 
+* Next we create a dictionary output for our sum. 
+* This  response dictionary is then sent back with the Response function (imported from the Response module of the django rest framework). 
+* The Response function is a highly versatile function and it determines the rendered output type of the response data on the fly. 
+* This is determined by a content negotiation with the client application (i.e. web browser, mobile app etc.). 
+* So, if the client application requires output in the form of a JSON, the Response function would convert the data to JSON in the output. 
+* This is why we are able to send a Python dictionary as output with the Response. 
+* You can read more about the Response function from the official documentation. 
+
+Save the views.py file. And restart the server with 
+
+```
+python manage.py runserver
+```
+
+
