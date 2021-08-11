@@ -275,3 +275,5 @@ Alternative
 
 You have created your very first REST API in Django.
 
+
+## Create API with Class Based Views
