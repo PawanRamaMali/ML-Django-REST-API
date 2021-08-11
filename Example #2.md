@@ -631,3 +631,99 @@ urlpatterns = [
 
 * You can add more users for your API by going to Django's admin portal with the url '127.0.0.1:8000/admin'.
 
+## Throttling our REST API
+
+* Running a prediction model from an API can be resource intensive (depending on the model) so if the number of requests per user within a given time-frame are not throttled then it may put too much load on the server which may cause it to run into issues. 
+* There are various methods to customize throttling for your users. 
+* However, since we used the basic authentication above, I would show how to customise throttling for users in one of the simplest ways.
+* For other methods and options please refer to the official documentation [here](https://www.django-rest-framework.org/api-guide/throttling/) . 
+
+* Create a new file called 'throttles.py' inside your Prediction app. 
+* Open the file and put the below code. 
+* Just for demonstration we are creating two throttling classes which inherit from the UserRateThrottle class.
+```
+from rest_framework.throttling import UserRateThrottle
+
+# Custom Throttle classes
+class LimitedRateThrottle(UserRateThrottle):
+    scope = 'limited' 
+
+class BurstRateThrottle(UserRateThrottle):
+    scope = 'burst'
+ 
+ ```
+    
+We set the cope to be 'limited' and 'burst' within these classes.
+
+* Now open the global settings.py file in the main project folder (APIProjectFolder). 
+* Add the following lines of code. 
+* Basically we define our default throttle classes as the ones created above. 
+* Next we provide the throttling rate for these classes. 
+* The unit shown below is minute(s) but it can also be hour or day. 
+
+```
+REST_FRAMEWORK = {
+    'DEFAULT_THROTTLE_CLASSES': [
+        'Prediction.throttles.LimitedRateThrottle',
+        'Prediction.throttles.BurstRateThrottle'
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'limited': '2/min',
+        'burst': '10/min'
+    }
+}
+```
+
+Open the views.py file in our Prediction app. 
+Add the below import line at the top as we want to use our newly created throttling classes in our APIView.
+```
+from .throttles import LimitedRateThrottle, BurstRateThrottle
+```
+Add the line into our IRIS_Model_Predict APIView class at the top below the permission classes variable. 
+```
+throttle_classes = [LimitedRateThrottle]
+```
+
+So our final APIView class would look like below.
+```
+# Class based view to predict based on IRIS model
+class IRIS_Model_Predict(APIView):
+    permission_classes = [IsAuthenticated]
+    throttle_classes = [LimitedRateThrottle]
+    def post(self, request, format=None):
+        data = request.data
+        keys = []
+        values = []
+        for key in data:
+            keys.append(key)
+            values.append(data[key])
+        X = pd.Series(values).to_numpy().reshape(1, -1)
+        loaded_classifier = PredictionConfig.classifier 
+        y_pred = loaded_classifier.predict(X)
+        y_pred = pd.Series(y_pred)
+        target_map = {0: 'setosa', 1: 'versicolor', 2: 'virginica'}
+        y_pred = y_pred.map(target_map).to_numpy()
+        response_dict = {"Prediced Iris Species": y_pred[0]}
+        return Response(response_dict, status=200)
+```
+
+* Restart the Django server and we are ready to test our API. 
+* Since, we have set the throttling rate at 2 requests per user per minute, we should not be able to make more than 2 request per minute. 
+* Open Postman and try to make 3 requests within 1 minute. 
+* On the 3rd attempt you would see the following message. 
+* You would also see the status response code of 429, too many requests from the server.
+
+![image](https://user-images.githubusercontent.com/11299574/129106010-c68976ff-96c4-4626-9684-a9fff83bb9cd.png)
+
+* To increase your throttling rate per user you may use the BurstRateThrottle class in your APIView or increase the rate in the settings.py file.
+
+## Push to Production 
+
+* To productionize your API you would need to run your server from a remote machine such as cloud Linux servers from AWS. 
+* Once you are set up with the AWS EC2 free tier, the next thing which you need to do is to transfer your project files to the EC2 Ubuntu instance through Git Hub. 
+* Next you need to set up a NGINX server to host you Django Web App from a cloud server. 
+* You can use the following guide from DigitalOcean which explains in a very clear and concise manner how to host your Django App from Linux Ubuntu with NGINX.
+* The guide is [here](https://www.digitalocean.com/community/tutorials/how-to-set-up-django-with-postgres-nginx-and-gunicorn-on-ubuntu-18-04).  
+* To encrypt connections to you Django application with https, this is the [guide](https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-ubuntu-18-04) to follow. 
+
+
