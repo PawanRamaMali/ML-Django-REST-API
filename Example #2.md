@@ -143,3 +143,14 @@ Quit the server with CTRL-BREAK.
 
 * Open your web browser and go to the url 'http://127.0.0.1:8000/'. You should see the following in your browser: 
 
+
+## Views in Django
+
+* We would first create a test API function view, to create a basic API end point, which performs basic operations such as addition on the data sent to it. This is just to demonstrate how a basic API end point can be created in Django. Later on we would embed functionality to perform predictions in the same API end point. 
+
+* To create API views in the Django REST Framework, there are three ways this could be done - Function based views, Class based views and using Viewsets. 
+
+* While function based and class based views are almost the same as in core Django, Viewsets are only found in the Django REST Framework. 
+
+* I would show the basic example with both Function based and Class Based views.
+
