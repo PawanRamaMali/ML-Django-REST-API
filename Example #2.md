@@ -299,3 +299,113 @@ class Add_Values(APIView):
         response_dict = {"sum": sum}
         return Response(response_dict, status=status.HTTP_201_CREATED)
 ```
+
+Next we need to add a urlpattern in a similar way as before so that requests made with that url take us to the Add_Values class. We add a url pattern 'add_values/'. The difference here is that the class Add_Values needs to be added with a .as_view() suffix.
+
+```
+from django.urls import path
+import Prediction.views as views
+
+urlpatterns = [
+    path('add/', views.api_add, name = 'api_add'),
+    path('add_values/', views.Add_Values.as_view(), name = 'api_add_values'),
+]
+```
+
+You just need to restart the django server with 'python manage.py runserver' in the command prompt and make POST requests as before, with the url http://127.0.0.1:8000/api/add_values/ and this would give you the same results as before.
+
+## Creating our Prediction Model
+
+* For the purpose of demonstration we are just going to create a simple Random Forest Model in Python on the famous Iris Flower dataset.
+* However, since this is a small dataset, it is available straightaway from the scikit-learn library as shown below.
+
+```
+from sklearn.datasets import load_iris
+iris = load_iris()
+```
+You can inspect the type of the dataset and you would find that scikit-learn has a special dataset type called 'sklearn.utils.Bunch' for it. 
+
+```
+type(iris)
+#Output: 
+#sklearn.utils.Bunch
+```
+We can inspect dataset features as below.  
+
+```
+print(iris.feature_names)
+#Output
+#['sepal length (cm)', 'sepal width (cm)', 'petal length (cm)', 'petal width (cm)']
+```
+We can also inspect what we need to predict as below.
+
+```
+print(iris.target_names)
+#Output
+#['setosa' 'versicolor' 'virginica']
+```
+
+So, the measured features we have are sepal length, sepal width, petal length, and petal width. Based on these measurements we need to predict which species the iris flower is - setosa, versicolor or virginica.   
+
+![image](https://user-images.githubusercontent.com/11299574/129087438-83fc6ffb-ac4b-4065-8e1e-e0f41146c1d8.png)
+
+* To train the model we create the feature matrix and target response variable as below.
+
+```
+# Define feature matrix in "X"
+X = iris.data
+
+# Define target response vector in "y"
+y = iris.target
+```
+
+* We create a pandas dataframe object from the feature matrix, to get an idea of the minimum and maximum values of the various features. 
+
+```
+import pandas as pd
+X_df = pd.DataFrame(data=X, columns = iris.feature_names)
+X_df.describe()
+```
+
+We see that there are 150 observations and the sepal length is in the range 4.3-7.9 cm, the sepal width is in the range 2-4.4 cm, the petal width is in the range 1-6.9 cm and the petal width is in the range 0.1 - 2.5 cm.  
+
+![image](https://user-images.githubusercontent.com/11299574/129087616-78438e8d-49ff-4e49-8232-2d9d4caf276c.png)
+
+* We next split our data into training and testing splits as below.
+
+```
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=1, stratify=y)
+
+```
+* Next we train a Random Forest Classifier with the data above
+```
+from sklearn.ensemble import RandomForestClassifier
+clf_rf = RandomForestClassifier(random_state = 1, n_estimators = 10, n_jobs = -1)
+estimator_rf = clf_rf
+estimator_rf.fit(X=X_train, y=y_train)
+```
+We see that our Random Forest Classifier achieved a testing accuracy of  96.7 % as below.
+```
+estimator_rf.score(X_test,y_test)
+#Output
+#0.9666666666666667
+```
+
+We also find that the accuracy of our model is expected to be pretty consistent at 96.7% by estimating a cross-validated accuracy as below.
+
+```
+from sklearn.model_selection import cross_val_score
+estimator_cv = clf_rf
+scores = cross_val_score(estimator_cv, X, y, cv = 5, scoring = 'accuracy')
+scores.mean()
+#Output
+#0.9666666666666668
+
+```
+
+
+
+
+
+
