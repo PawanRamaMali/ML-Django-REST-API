@@ -277,3 +277,14 @@ You have created your very first REST API in Django.
 
 
 ## Create API with Class Based Views
+
+* Next we are going to create the same API functionality as before but with a Class based view. 
+* Class based views are recommended in Django, as class allows benefits such as inheriting properties from other classes and mixing properties (such as mixing authentication and permissions) which allow a lot more flexibility than function based views.
+* To create a class based view we first import the standard APIView class from the rest_framework module. 
+
+```
+from rest_framework.views import APIView
+```
+The class based view would look like below. Note that this has been added in the same views.py file as before in the Prediction app. In the class we can change the class function, post, which handles POST requests.
+
+
