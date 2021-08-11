@@ -431,4 +431,113 @@ loaded_classifier.score(X_test,y_test)
 #0.9666666666666667
 ```
 
+## Creating our Prediction API View in Django
+
+* Since we have created our trained model, now it is time to create the API. 
+* First copy paste the serialized model we saved before into a new folder called classifier in our Prediction app folder.
+* The serialised Random Forest Classifier we saved before to disk is loaded back into memory with a variable called classifier of the class PredictionConfig which is defined in the apps.py file in the Prediction app folder. 
+* Open the apps.py file. The contents of the file are as below.
+
+```
+from django.apps import AppConfig
+import pandas as pd
+from joblib import load
+import os
+
+class PredictionConfig(AppConfig):
+    name = 'Prediction'
+    #CLASSIFIER_FOLDER = Path("classifier")
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    CLASSIFIER_FOLDER = os.path.join(BASE_DIR, 'Prediction/classifier/')
+    #CLASSIFIER_FILE = CLASSIFIER_FOLDER / "IRISRandomForestClassifier.joblib"
+    CLASSIFIER_FILE = os.path.join(CLASSIFIER_FOLDER, "IRISRandomForestClassifier.joblib")
+    classifier = load(CLASSIFIER_FILE)
+```
+
+* The reason we are loading the model in our apps.py file is because, in this manner the classifier is loaded only once, when a session connection is made to our Django application, reducing overhead.
+* We are loading the saved classifier back into memory with the joblib load method as discussed before. 
+* In the views.py file of our app, Prediction, create a new class called IRIS_Model_Predicton which inherits from the rest framework standard class APIView.
+
+The class based view looks like below:
+
+```
+from .apps import PredictionConfig
+import pandas as pd
+
+# Class based view to predict based on IRIS model
+class IRIS_Model_Predict(APIView):
+    #permission_classes = [IsAuthenticated]
+    def post(self, request, format=None):
+        data = request.data
+        keys = []
+        values = []
+        for key in data:
+            keys.append(key)
+            values.append(data[key])
+        X = pd.Series(values).to_numpy().reshape(1, -1)
+        loaded_classifier = PredictionConfig.classifier 
+        y_pred = loaded_classifier.predict(X)
+        y_pred = pd.Series(y_pred)
+        target_map = {0: 'setosa', 1: 'versicolor', 2: 'virginica'}
+        y_pred = y_pred.map(target_map).to_numpy()
+        response_dict = {"Prediced Iris Species": y_pred[0]}
+        return Response(response_dict, status=200)
+	
+```
+
+As you could see, just like before we are using a post method. We would send iris measurement data, one observation at a time in the form of JSON data, to this API view. 
+
+Here is an example of how the iris observation data would like in JSON.
+
+```
+{
+	"sepal length (cm)": 7.9,
+	"sepal width (cm)":2.9,
+	"petal length (cm)":6.3,
+	"petal width (cm)":1.8
+}
+```
+
+* This input JSON observation data is first received into a Python dictionary called data. 
+* All values of this dictionary are then stored in a list called values. 
+* The values list is then converted to numpy object, X,  by first converting it to a pandas series and then using the .to_numpy() method of pandas series. 
+* Note that you would need to import pandas as pd. 
+* So ensure that you add this line at the top in the views.py file. 
+* We get the classifier from the classifier variable of the PredictionConfig class our app Prediction which has been loaded before. 
+* We predict the species of the iris flower for which we have observation data, with this classifier. 
+* The prediction is in numpy format. 
+* We first convert this numpy to a pandas series object. 
+* Also, the predicted class would be one of 0,1 or 2. 
+* To convert our predicted class label to its corresponding species we would map these values to their species names. 
+* We use the dictionary target_map to achieve this.   
+
+```
+target_map = {0: 'setosa', 1: 'versicolor', 2: 'virginica'}
+```
+
+Finally we return the predicted species in the form of a dictionary response with a status of 200. 
+
+## Creating our Prediction API Url in Django
+
+* As discussed before, we need to create a urlpattern for our API. Add the following line in the urls.py file in our Prediction app and save it.
+
+```
+path('predict/', views.IRIS_Model_Predict.as_view(), name = 'predict'),
+```
+
+This means we can send JSON observation data request to our API, http://127.0.0.1:8000/api/predict/, and we would receive our API predicted iris species for this observed data.  
+
+Restart your Django server with the command 'python manage.py runserver' in the command line.
+
+## Testing our Machine Learning REST API
+
+* Let's test our prediction API with sample observation data. Open Postman and send some sample JSON observation data to the API created.
+
+With the above sepal and petal data the predicted species is virginica. If we make the petal size smaller i.e. petal length = 2 cm and petal width = 1 cm, we would see that API now predicts a different species 'setosa'.
+
+* Our API appears to be predicting the species of the iris flower well. You can further customize the API to make predictions for a set of observations and return the predictions as JSON to cross validate the model with real data, provided you have more data. 
+* However, given the cross validated accuracy of our model, it appears that our API is performing well.
+
+
+
 
