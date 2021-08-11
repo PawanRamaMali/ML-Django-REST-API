@@ -124,4 +124,22 @@ You can see that the sqlite database file has been created in the project folder
 
 * Once the superuser has been created, the terminal would display `Superuser created successfully` in the end.
 
+## Check Django is running successfully. 
+
+* Type the following in the command line.
+
+```
+(Env64) Z:\MachineLearning\Projects\DjangoRestAPIDemo\APIProjectFolder>python manage.py runserver
+```
+
+If you followed the above steps correctly, you would see the following message in the command line.
+
+```
+System check identified no issues (0 silenced).                                                                                                                                    
+Django version 2.2, using settings 'ModelAPI.settings'                                                      
+Starting development server at http://127.0.0.1:8000/                                                       
+Quit the server with CTRL-BREAK.
+```
+
+* Open your web browser and go to the url 'http://127.0.0.1:8000/'. You should see the following in your browser: 
 
